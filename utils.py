@@ -1,5 +1,4 @@
 from pandas import read_excel
-import csv
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -7,14 +6,6 @@ import matplotlib.pyplot as plt
 
 from sklearn.model_selection import cross_val_score, KFold, train_test_split, StratifiedKFold, cross_validate
 from sklearn.metrics import confusion_matrix, mean_squared_error, classification_report, f1_score, mean_squared_log_error, recall_score, accuracy_score
-from sklearn.decomposition import PCA
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LinearRegression, Ridge, Lasso, LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, RandomForestRegressor, AdaBoostRegressor, BaggingRegressor
-from sklearn import svm, tree 
-from sklearn.cluster import KMeans
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 # Basic ML training given a LIST of models
 def basic_training_by_model_list(_X_train, _X_test, _y_train, _y_test, _models_list):
@@ -36,7 +27,7 @@ def basic_training_by_model_list(_X_train, _X_test, _y_train, _y_test, _models_l
     return accuracies, f1_scores
 
 # Add numbers to a point in a plot
-def annotate_points(ax, list_points, move = False):
+def annotate_points(ax, list_points, move=False, move_nbr=0):
     if move:
         xx = np.arange(1,len(list_points)*2,2)
     else:
@@ -44,11 +35,11 @@ def annotate_points(ax, list_points, move = False):
 
     # Annotating points
     for i, txt in enumerate(["{0:0.3f}".format(i) for i in list_points]):
-        ax.annotate(txt, (xx[i], list_points[i]-0.015))
+        ax.annotate(txt, (xx[i], list_points[i]-move_nbr))
     return ax
 
 # Plot comparing accuracy and f1-score per model and per re-scaling technique
-def plot_score_comparision(acc1, f1scr1, acc2, f1scr2, list_models_names):
+def plot_score_comparision(acc1, f1scr1, acc2, f1scr2, list_models_names, list_labels, _move_nbr):
 
     fig, ax1, = plt.subplots(1,1,figsize=(7,5))
     ax1.scatter(np.arange(0,len(acc1)*2, 2), acc1, marker = 'D', s=35, color='cadetblue')
@@ -58,14 +49,14 @@ def plot_score_comparision(acc1, f1scr1, acc2, f1scr2, list_models_names):
 
     ax1 = annotate_points(ax1, acc1)
     ax1 = annotate_points(ax1, f1scr1)
-    ax1 = annotate_points(ax1, acc2, move= True)
-    ax1 = annotate_points(ax1, f1scr2, move = True)
+    ax1 = annotate_points(ax1, acc2, move= True, move_nbr=_move_nbr)
+    ax1 = annotate_points(ax1, f1scr2, move = True, move_nbr=_move_nbr)
 
     ax1.set_ylabel('F1-score/Accuracy', color = 'black', fontsize = 16)
     ax1.set_xlabel('Default models', color = 'black', fontsize = 16)
-    ax1.legend(['Accu min-max', 'F1-sco min-max', 'Accu std', 'F1-sco std'])
-    major_ticks = np.arange(0.5,10,2)
-    minor_ticks = np.arange(-0.5,10,2)
+    ax1.legend(['Accu '+list_labels[0], 'F1-sco '+ list_labels[0], 'Accu '+ list_labels[1], 'F1-sco '+ list_labels[1]])
+    major_ticks = np.arange(0.5,len(list_models_names)*2,2)
+    minor_ticks = np.arange(-0.5,len(list_models_names)*2,2)
     ax1.set_xticks(major_ticks, labels = list_models_names)
     ax1.set_xticks(minor_ticks, minor = True)
     plt.grid(which='minor', axis='x', alpha = 0.5)
